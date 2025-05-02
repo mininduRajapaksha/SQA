@@ -1,12 +1,29 @@
 {
   "name": "backend",
   "version": "1.0.0",
+<<<<<<< HEAD
   "description": "",
   "main": "server.js",
   "scripts": {
+=======
+  "description": "business platform that buy and sell products",
+  "main": "index.js",
+  "scripts": {
+    
+>>>>>>> f059af4d7b6b0e74327c9c5a8871d7b3f776c66a
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
   "author": "minindu",
+<<<<<<< HEAD
   "license": "ISC"
+=======
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^8.12.2"
+  }
+>>>>>>> f059af4d7b6b0e74327c9c5a8871d7b3f776c66a
 }

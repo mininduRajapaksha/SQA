@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "name": "sqa",
   "version": "1.0.0",
   "description": "feedback collection system",
@@ -13,5 +14,9 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "mongoose": "^8.14.1"
+=======
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+>>>>>>> f059af4d7b6b0e74327c9c5a8871d7b3f776c66a
   }
 }

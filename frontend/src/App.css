@@ -2,6 +2,7 @@
   text-align: center;
 }
 
+<<<<<<< HEAD
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -12,6 +13,9 @@
     animation: App-logo-spin infinite 20s linear;
   }
 }
+=======
+
+>>>>>>> f059af4d7b6b0e74327c9c5a8871d7b3f776c66a
 
 .App-header {
   background-color: #282c34;
@@ -28,6 +32,7 @@
   color: #61dafb;
 }
 
+<<<<<<< HEAD
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
@@ -36,3 +41,7 @@
     transform: rotate(360deg);
   }
 }
+=======
+
+
+>>>>>>> f059af4d7b6b0e74327c9c5a8871d7b3f776c66a
