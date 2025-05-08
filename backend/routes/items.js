@@ -74,3 +74,5 @@ router.route("/seller/:id").get((req, res)=>{
     .then(items=>res.json(items))
     .catch(err=>res.status(400).json('Error: '+err));
 })
+
+module.exports = router;
