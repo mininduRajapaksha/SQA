@@ -1,30 +1,27 @@
-<<<<<<< HEAD
-// import logo from './logo.svg';
 import './App.css';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Adduser from './components/Adduser';
 import Login from './components/Login';
-import { BrowserRouter } from 'react-router-dom';
+import CustomerDashboard from './components/CustomerDashboard';
+import BusinessDashboard from './components/BusinessDashboard';
+import AddItems from './components/AddItems';
+
 
 function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <div className="App">
-      <Header/>
-      <Adduser/>
-      {/* <Login/> */}
+        <Routes>
+          <Route path="/" element={<Header />} />
+          <Route path="/adduser" element={<Adduser />} />
+          <Route path="/" element={<Login />} />
+          <Route path="/additems" element={<AddItems />} />
+          <Route path="/customer-dashboard" element={<CustomerDashboard />} />
+          <Route path="/business-dashboard" element={<BusinessDashboard />} />
+        </Routes>
       </div>
-    </BrowserRouter>
-=======
-import './App.css';
-import Header from './Components/Header';
-
-function App() {
-  return (
-    <div className="App">
-     <Header/>
-    </div>
->>>>>>> f059af4d7b6b0e74327c9c5a8871d7b3f776c66a
+    </Router>
   );
 }
 

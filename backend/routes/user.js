@@ -79,9 +79,7 @@ router.route("/getByPhoneNumber/:phoneNumber").get((req, res) => {
   user.findOne({ phoneNumber: req.params.phoneNumber })
     .then(user => res.json(user))
     .catch(err => res.status(400).json('Error: ' + err));
-});
-
-<<<<<<< HEAD
+})
 // User login
 router.route("/login").post((req, res) => {
   const { email, password } = req.body;
@@ -107,7 +105,4 @@ router.route("/login").post((req, res) => {
     })
     .catch(err => res.status(400).json("Error: " + err));
 });
-
-=======
->>>>>>> f059af4d7b6b0e74327c9c5a8871d7b3f776c66a
-module.exports = router;
+ module.exports = router;
