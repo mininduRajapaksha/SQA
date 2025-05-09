@@ -25,11 +25,11 @@ const itemSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  sellerId:{
-    type: mongoose.Schema.Types.ObjectId,
-    ref:'User',
-    required:true
-  }
+  // sellerId:{
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref:'User',
+  //   required:true
+  // }
 }, { timestamps: true }); // Automatically adds createdAt and updatedAt fields
 
 module.exports = mongoose.model('Item', itemSchema);

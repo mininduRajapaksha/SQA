@@ -1,6 +1,9 @@
 const router = require("express").Router();
 let user = require("../models/user");
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
+const JWT_SECRET = 'your_secret_key';
 // Add a new user
 router.route("/add").post((req, res) => {
   const firstName = req.body.firstName;
@@ -81,6 +84,19 @@ router.route("/getByPhoneNumber/:phoneNumber").get((req, res) => {
     .catch(err => res.status(400).json('Error: ' + err));
 })
 // User login
+
+// router.post('/login', async (req, res) => {
+//   const { email, password } = req.body;
+//   const user = await user.findOne({ email });
+
+//   if (!user || !(await bcrypt.compare(password, user.password))) {
+//     return res.status(401).json({ message: 'Invalid credentials' });
+//   }
+
+//   const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
+//   res.json({ token, user });
+// });
+
 router.route("/login").post((req, res) => {
   const { email, password } = req.body;
 

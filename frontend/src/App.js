@@ -6,6 +6,11 @@ import Login from './components/Login';
 import CustomerDashboard from './components/CustomerDashboard';
 import BusinessDashboard from './components/BusinessDashboard';
 import AddItems from './components/AddItems';
+import ItemDetails from './components/ItemDetails';
+import UpdateItem from './components/UpdateItem';
+import CustomerItemDetails from './components/CustomerItemDetails';
+import ProtectedRoute from './components/ProtectedRoute';
+import Cart from './components/Cart';
 
 
 function App() {
@@ -18,7 +23,17 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/add-item" element={<AddItems />} />
           <Route path="/customer-dashboard" element={<CustomerDashboard />} />
-          <Route path="/business-dashboard" element={<BusinessDashboard />} />
+          <Route path="/business-dashboard" element={<BusinessDashboard />} />    
+          <Route path="/item/edit/:id" element={<UpdateItem />} />
+          <Route path="/cart" element={<Cart />} />
+
+          <Route path="/item/:id" element={
+    <ProtectedRoute>
+      {({ user }) => (
+        user.role === 'businessman' ? <ItemDetails /> : <CustomerItemDetails />
+      )}
+    </ProtectedRoute>
+  } />
         </Routes>
       </div>
     </Router>

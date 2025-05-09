@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Header from './Header';
 
 export default function AddItems({onError}) {
 
@@ -9,6 +10,7 @@ export default function AddItems({onError}) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -20,14 +22,19 @@ export default function AddItems({onError}) {
     stockQuantity: '',
   });
 
+
+  // Add useEffect for authentication check
   useEffect(() => {
     const userJson = localStorage.getItem('user');
     if (!userJson) {
-      navigate('/');
+      onError('Please login to add items');
+      navigate('/login');
       return;
     }
-    setCurrentUser(JSON.parse(userJson));
-  }, [navigate]);
+    const user = JSON.parse(userJson);
+    setCurrentUser(user);
+    setIsLoggedIn(true);
+  }, [navigate, onError]);
 
   // Error states
   const [errors, setErrors] = useState({});
@@ -46,20 +53,32 @@ export default function AddItems({onError}) {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = () => {
-        setPreviewUrl(reader.result);
-      };
-      reader.readAsDataURL(file);
-      setSelectedFile(file);
-      
-      // Clear any existing image errors
-      if (errors.image) {
-        setErrors(prev => ({ ...prev, image: '' }));
-      }
+        if (file.size > 5 * 1024 * 1024) {
+            setErrors(prev => ({
+                ...prev,
+                image: 'File size should be less than 5MB'
+            }));
+            return;
+        }
+
+        if (!file.type.startsWith('image/')) {
+            setErrors(prev => ({
+                ...prev,
+                image: 'Please upload an image file'
+            }));
+            return;
+        }
+
+        setSelectedFile(file);
+        
+        // Create preview
+        const reader = new FileReader();
+        reader.onload = () => {
+            setPreviewUrl(reader.result);
+        };
+        reader.readAsDataURL(file);
     }
-  };
+};
 
   // Validation
 const validateForm = () => {
@@ -105,77 +124,63 @@ const validateForm = () => {
   return Object.keys(newErrors).length === 0;
 };
 
-// Update the handleSubmit function
+//handleSubmit function
 const handleSubmit = async (e) => {
   e.preventDefault();
   
   if (!validateForm()) return;
 
-  if (!currentUser?._id) {
-    onError?.('Please login to add items'); // Make onError optional with ?. operator
-    setAlert({
-      show: true,
-      type: 'warning',
-      message: 'Please login to add items'
-    });
-    return;
-  }
-
   try {
-    const formDataToSend = new FormData();
-    // Convert values to proper types before sending
-    formDataToSend.append('name', formData.name.trim());
-    formDataToSend.append('description', formData.description.trim());
-    formDataToSend.append('price', Number(formData.price).toString());
-    formDataToSend.append('category', formData.category.trim());
-    formDataToSend.append('stockQuantity', Number(formData.stockQuantity).toString());
-    formDataToSend.append('sellerId', currentUser._id); // Add seller ID
-    
-    // Ensure file is properly appended
-    if (selectedFile) {
-      formDataToSend.append('image', selectedFile, selectedFile.name);
-    }
-
-    const response = await axios.post('http://localhost:5000/items/add', formDataToSend, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name.trim());
+      formDataToSend.append('description', formData.description.trim());
+      formDataToSend.append('price', Number(formData.price).toString());
+      formDataToSend.append('category', formData.category.trim());
+      formDataToSend.append('stockQuantity', Number(formData.stockQuantity).toString());
+      
+      if (selectedFile) {
+          formDataToSend.append('image', selectedFile);
       }
-    });
-    
-    if (response.status === 201 || response.status === 200) {
-      setAlert({
-        show: true,
-        type: 'success',
-        message: response.data.message || 'Item added successfully!'
-      });
 
-      // Clear form
-      setFormData({
-        name: '',
-        description: '',
-        category: '',
-        price: '',
-        stockQuantity: ''
-      });
-      setSelectedFile(null);
-      setPreviewUrl('');
-      setErrors({});
+      const response = await axios.post('http://localhost:5000/items/add', 
+          formDataToSend,
+          {
+              headers: {
+                  'Content-Type': 'multipart/form-data'
+              }
+          }
+      );
 
-      // Reset file input
-      const fileInput = document.getElementById('image');
-      if (fileInput) fileInput.value = '';
-    }
+      if (response.status === 201) {
+          setAlert({
+              show: true,
+              type: 'success',
+              message: 'Item added successfully!'
+          });
+          
+          // Clear form
+          setFormData({
+              name: '',
+              description: '',
+              category: '',
+              price: '',
+              stockQuantity: ''
+          });
+          setSelectedFile(null);
+          setPreviewUrl('');
+      }
   } catch (error) {
-    console.error('Error details:', error.response?.data);
-    setAlert({
-      show: true,
-      type: 'danger',
-      message: error.response?.data?.message || 'Error adding item. Please try again.'
-    });
+      setAlert({
+          show: true,
+          type: 'danger',
+          message: error.response?.data?.message || 'Error adding item'
+      });
   }
 };
 
   return (
+    <>
+    <Header isLoggedIn={isLoggedIn} currentUser={currentUser} />
     <div className="container mt-5">
       {alert.show && (
         <div className={`alert alert-${alert.type} alert-dismissible fade show`} role="alert">
@@ -310,5 +315,6 @@ const handleSubmit = async (e) => {
         </div>
       </div>
     </div>
+    </>
   );
 }

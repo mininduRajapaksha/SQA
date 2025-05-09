@@ -6,7 +6,7 @@ import Header from "./Header";
 export default function BusinessDashboard() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
-  const [userItems, setUserItems] = useState([]);
+  const [items, setItems] = useState([]);
   const [alert, setAlert] = useState({ show: false, type: 'warning', message: '' });
   const navigate = useNavigate();
 
@@ -19,30 +19,30 @@ export default function BusinessDashboard() {
         message: 'Please login to view dashboard'
       });
       setTimeout(() => {
-        navigate('/login');
+        navigate('/');
       }, 2000);
     } else {
       try {
         const user = JSON.parse(userJson);
         setCurrentUser(user);
         setIsLoggedIn(true);
-        // Fetch user's items
-        fetchUserItems(user._id);
+        // Fetch all items instead of user-specific items
+        fetchAllItems();
       } catch (error) {
         console.error('Error parsing user data:', error);
       }
     }
   }, [navigate]);
 
-  const fetchUserItems = async (userId) => {
+  const fetchAllItems = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/items/seller/${userId}`);
-      setUserItems(response.data);
+      const response = await axios.get('http://localhost:5000/items');
+      setItems(response.data);
     } catch (error) {
       setAlert({
         show: true,
         type: 'danger',
-        message: 'Error fetching your items'
+        message: 'Error fetching items'
       });
     }
   };
@@ -72,32 +72,39 @@ export default function BusinessDashboard() {
 
         {isLoggedIn && currentUser ? (
           <div className="row">
-            {userItems.length > 0 ? (
-              userItems.map(item => (
+            {items.length > 0 ? (
+              items.map(item => (
                 <div key={item._id} className="col-md-4 mb-4">
+                <Link 
+                  to={`/item/${item._id}`} 
+                  className="text-decoration-none"
+                >
                   <div className="card h-100">
                     <img 
                       src={item.imageUrl} 
                       className="card-img-top" 
                       alt={item.name}
                       style={{ height: '200px', objectFit: 'cover' }}
+                      onError={(e) => {
+                        e.target.src = 'https://via.placeholder.com/200x200?text=No+Image';
+                      }}
                     />
                     <div className="card-body">
-                      <h5 className="card-title">{item.name}</h5>
-                      <p className="card-text">{item.description}</p>
+                      <h5 className="card-title text-dark">{item.name}</h5>
                       <div className="d-flex justify-content-between align-items-center">
-                        <span className="h5 mb-0">Rs. {item.price}</span>
+                        <span className="h5 mb-0 text-dark">Rs. {item.price}</span>
                         <span className="badge bg-secondary">Stock: {item.stockQuantity}</span>
                       </div>
                     </div>
                   </div>
-                </div>
+                </Link>
+              </div>
               ))
             ) : (
               <div className="text-center">
-                <p>You haven't added any items yet.</p>
+                <p>No items available.</p>
                 <Link to="/add-item" className="btn btn-primary">
-                  Add Your First Item
+                  Add First Item
                 </Link>
               </div>
             )}
