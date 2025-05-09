@@ -7,5 +7,6 @@ export default function CustomerDashboard() {
       <p>Welcome to the customer dashboard!</p>
       <p>Here you can manage your account and view your orders.</p>
     </div>
+    
   );
 }

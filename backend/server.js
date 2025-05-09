@@ -23,8 +23,11 @@ mongoose.connect(URL, {
 });
 
 const userRouter = require('./routes/user');
+const itemsRouter = require('./routes/items');
 
 app.use("/user", userRouter)
+app.use("/items", itemsRouter)
+app.use('/uploads', express.static('uploads'));
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

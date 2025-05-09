@@ -1,8 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-export default function AddItems() {
+export default function AddItems({onError}) {
+
+  
   // Form state
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -11,6 +19,15 @@ export default function AddItems() {
     imageUrl: '',
     stockQuantity: '',
   });
+
+  useEffect(() => {
+    const userJson = localStorage.getItem('user');
+    if (!userJson) {
+      navigate('/');
+      return;
+    }
+    setCurrentUser(JSON.parse(userJson));
+  }, [navigate]);
 
   // Error states
   const [errors, setErrors] = useState({});
@@ -26,51 +43,110 @@ export default function AddItems() {
     }
   };
 
-  // Validation
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (!formData.name.trim()) {
-      newErrors.name = 'Product name is required';
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = () => {
+        setPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+      setSelectedFile(file);
+      
+      // Clear any existing image errors
+      if (errors.image) {
+        setErrors(prev => ({ ...prev, image: '' }));
+      }
     }
-    
-    if (!formData.description.trim()) {
-      newErrors.description = 'Description is required';
-    }
-    
-    if (!formData.price || formData.price <= 0) {
-      newErrors.price = 'Please enter a valid price';
-    }
-    
-    if (!formData.category.trim()) {
-      newErrors.category = 'Category is required';
-    }
-    
-    if (!formData.imageUrl.trim()) {
-      newErrors.imageUrl = 'Image URL is required';
-    }
-    
-    if (!formData.stockQuantity || formData.stockQuantity < 0) {
-      newErrors.stockQuantity = 'Please enter a valid stock quantity';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!validateForm()) return;
+  // Validation
+const validateForm = () => {
+  const newErrors = {};
+  
+  if (!formData.name.trim()) {
+    newErrors.name = 'Product name is required';
+  }
+  
+  if (!formData.description.trim()) {
+    newErrors.description = 'Description is required';
+  }
+  
+  if (!formData.price || formData.price <= 0) {
+    newErrors.price = 'Please enter a valid price';
+  }
+  
+  if (!formData.category.trim()) {
+    newErrors.category = 'Category is required';
+  }
+  
+  if (!formData.stockQuantity || formData.stockQuantity < 0) {
+    newErrors.stockQuantity = 'Please enter a valid stock quantity';
+  }
 
-    try {
-      const response = await axios.post('http://localhost:5000/items/add', formData);
-      
+  // File validation
+  if (!selectedFile) {
+    newErrors.image = 'Product image is required';
+  } else {
+    // Validate file size (5MB max)
+    if (selectedFile.size > 5 * 1024 * 1024) {
+      newErrors.image = 'Image size should be less than 5MB';
+    }
+    
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    if (!allowedTypes.includes(selectedFile.type)) {
+      newErrors.image = 'Only JPG, JPEG and PNG images are allowed';
+    }
+  }
+
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
+
+// Update the handleSubmit function
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  if (!validateForm()) return;
+
+  if (!currentUser?._id) {
+    onError?.('Please login to add items'); // Make onError optional with ?. operator
+    setAlert({
+      show: true,
+      type: 'warning',
+      message: 'Please login to add items'
+    });
+    return;
+  }
+
+  try {
+    const formDataToSend = new FormData();
+    // Convert values to proper types before sending
+    formDataToSend.append('name', formData.name.trim());
+    formDataToSend.append('description', formData.description.trim());
+    formDataToSend.append('price', Number(formData.price).toString());
+    formDataToSend.append('category', formData.category.trim());
+    formDataToSend.append('stockQuantity', Number(formData.stockQuantity).toString());
+    formDataToSend.append('sellerId', currentUser._id); // Add seller ID
+    
+    // Ensure file is properly appended
+    if (selectedFile) {
+      formDataToSend.append('image', selectedFile, selectedFile.name);
+    }
+
+    const response = await axios.post('http://localhost:5000/items/add', formDataToSend, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    
+    if (response.status === 201 || response.status === 200) {
       setAlert({
         show: true,
         type: 'success',
-        message: 'Item added successfully!'
+        message: response.data.message || 'Item added successfully!'
       });
 
       // Clear form
@@ -79,17 +155,25 @@ export default function AddItems() {
         description: '',
         category: '',
         price: '',
-        imageUrl: '',
         stockQuantity: ''
       });
-    } catch (error) {
-      setAlert({
-        show: true,
-        type: 'danger',
-        message: error.response?.data?.message || 'Error adding item'
-      });
+      setSelectedFile(null);
+      setPreviewUrl('');
+      setErrors({});
+
+      // Reset file input
+      const fileInput = document.getElementById('image');
+      if (fileInput) fileInput.value = '';
     }
-  };
+  } catch (error) {
+    console.error('Error details:', error.response?.data);
+    setAlert({
+      show: true,
+      type: 'danger',
+      message: error.response?.data?.message || 'Error adding item. Please try again.'
+    });
+  }
+};
 
   return (
     <div className="container mt-5">
@@ -109,7 +193,7 @@ export default function AddItems() {
         <div className="card-body">
           <h3 className="card-title mb-4 text-center">Add New Item</h3>
           
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} encType="multipart/form-data">
             <div className="mb-3">
               <label htmlFor="name" className="form-label">Product Name</label>
               <input
@@ -188,17 +272,36 @@ export default function AddItems() {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="imageUrl" className="form-label">Image URL</label>
-              <input
-                type="url"
-                className={`form-control ${errors.imageUrl ? 'is-invalid' : ''}`}
-                id="imageUrl"
-                name="imageUrl"
-                value={formData.imageUrl}
-                onChange={handleChange}
-              />
-              {errors.imageUrl && <div className="invalid-feedback">{errors.imageUrl}</div>}
-            </div>
+      <label htmlFor="image" className="form-label">Product Image</label>
+      <div className="d-flex gap-3 align-items-start">
+        <div className="flex-grow-1">
+          <input
+            type="file"
+            className={`form-control ${errors.image ? 'is-invalid' : ''}`}
+            id="image"
+            accept="image/*"
+            onChange={handleFileChange}
+          />
+          {errors.image && <div className="invalid-feedback">{errors.image}</div>}
+          <small className="text-muted d-block mt-1">
+            Accepted formats: JPG, PNG, JPEG. Max size: 5MB
+          </small>
+        </div>
+        {previewUrl && (
+          <div style={{ width: '100px', height: '100px' }} className="border rounded">
+            <img
+              src={previewUrl}
+              alt="Preview"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover'
+              }}
+            />
+          </div>
+        )}
+      </div>
+    </div>
 
             <button type="submit" className="btn btn-primary w-100">
               Add Item

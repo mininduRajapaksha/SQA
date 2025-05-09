@@ -16,7 +16,7 @@ function App() {
           <Route path="/h" element={<Header />} />
           <Route path="/adduser" element={<Adduser />} />
           <Route path="/" element={<Login />} />
-          <Route path="/additems" element={<AddItems />} />
+          <Route path="/add-item" element={<AddItems />} />
           <Route path="/customer-dashboard" element={<CustomerDashboard />} />
           <Route path="/business-dashboard" element={<BusinessDashboard />} />
         </Routes>

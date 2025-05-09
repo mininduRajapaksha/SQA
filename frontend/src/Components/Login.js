@@ -31,6 +31,7 @@ export default function Login() {
             } else if (user.role === 'businessman') {
                 navigate('/business-dashboard');
             }
+            localStorage.setItem('user', JSON.stringify(response.data.user));
         } catch (error) {
             setAlert({
                 show: true,

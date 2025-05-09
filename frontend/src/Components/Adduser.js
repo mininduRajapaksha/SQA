@@ -33,7 +33,7 @@ export default function Adduser() {
             setAlert({
                 show: true,
                 type: 'success',
-                message: 'User registered successfully!'
+                 message: response.data.message || 'User registered successfully!'
             });
             setFormData({
                 firstName: '',
