@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import AuthHeader from './AuthHeader';
 
 export default function Adduser() {
     const [formData, setFormData] = useState({
@@ -70,135 +72,140 @@ export default function Adduser() {
     };
 
     return (
-        <div className="container mt-5">
-            {alert.show && (
-                <div className={`alert alert-${alert.type} alert-dismissible fade show`} role="alert">
-                    {alert.message}
-                    <button type="button" className="btn-close" onClick={() => setAlert({ ...alert, show: false })} aria-label="Close"></button>
-                </div>
-            )}
-            <div className="card shadow-sm">
-                <div className="card-body">
-                    <h3 className="card-title mb-4 text-center">User Registration</h3>
-                    <form onSubmit={handleSubmit}>
-                        <div className="row g-3">
-                            <div className="col-md-6">
-                                <div className="form-floating">
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="firstName"
-                                        name="firstName"
-                                        placeholder="First Name"
-                                        value={formData.firstName}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                    <label htmlFor="firstName">First Name</label>
+        <>
+            <AuthHeader />
+            <div className="container mt-5">
+                {alert.show && (
+                    <div className={`alert alert-${alert.type} alert-dismissible fade show`} role="alert">
+                        {alert.message}
+                        <button type="button" className="btn-close" onClick={() => setAlert({ ...alert, show: false })} aria-label="Close"></button>
+                    </div>
+                )}
+                <div className="row justify-content-center">
+                    <div className="card shadow-sm">
+                        <div className="card-body">
+                            <h3 className="card-title mb-4 text-center">User Registration</h3>
+                            <form onSubmit={handleSubmit}>
+                                <div className="row g-3">
+                                    <div className="col-md-6">
+                                        <div className="form-floating">
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                id="firstName"
+                                                name="firstName"
+                                                placeholder="First Name"
+                                                value={formData.firstName}
+                                                onChange={handleChange}
+                                                required
+                                            />
+                                            <label htmlFor="firstName">First Name</label>
+                                        </div>
+                                    </div>
+                                    <div className="col-md-6">
+                                        <div className="form-floating">
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                id="lastName"
+                                                name="lastName"
+                                                placeholder="Last Name"
+                                                value={formData.lastName}
+                                                onChange={handleChange}
+                                                required
+                                            />
+                                            <label htmlFor="lastName">Last Name</label>
+                                        </div>
+                                    </div>
+                                    <div className="col-12">
+                                        <div className="form-floating">
+                                            <input
+                                                type="email"
+                                                className="form-control"
+                                                id="email"
+                                                name="email"
+                                                placeholder="name@example.com"
+                                                value={formData.email}
+                                                onChange={handleChange}
+                                                required
+                                            />
+                                            <label htmlFor="email">Email Address</label>
+                                        </div>
+                                    </div>
+                                    <div className="col-12">
+                                        <div className="form-floating">
+                                            <input
+                                                type="tel"
+                                                className="form-control"
+                                                id="phoneNumber"
+                                                name="phoneNumber"
+                                                placeholder="Phone Number"
+                                                pattern="[0-9]{10}"
+                                                value={formData.phoneNumber}
+                                                onChange={handleChange}
+                                                required
+                                            />
+                                            <label htmlFor="phoneNumber">Phone Number</label>
+                                        </div>
+                                    </div>
+                                    <div className="col-12">
+                                        <div className="form-floating">
+                                            <textarea
+                                                className="form-control"
+                                                id="homeAddress"
+                                                name="homeAddress"
+                                                placeholder="Address"
+                                                value={formData.homeAddress}
+                                                onChange={handleChange}
+                                                style={{ height: '100px' }}
+                                                required
+                                            />
+                                            <label htmlFor="homeAddress">Home Address</label>
+                                        </div>
+                                    </div>
+                                    <div className="col-12">
+                                        <div className="form-floating">
+                                            <select
+                                                className="form-select"
+                                                id="role"
+                                                name="role"
+                                                value={formData.role}
+                                                onChange={handleChange}
+                                                required
+                                            >
+                                                <option value="">Select Role</option>
+                                                <option value="customer">Customer</option>
+                                                <option value="businessman">Businessman</option>
+                                            </select>
+                                            <label htmlFor="role">Role</label>
+                                        </div>
+                                    </div>
+                                    <div className="col-12">
+                                        <div className="form-floating">
+                                            <input
+                                                type="password"
+                                                className="form-control"
+                                                id="password"
+                                                name="password"
+                                                placeholder="Password"
+                                                value={formData.password}
+                                                onChange={handleChange}
+                                                required
+                                            />
+                                            <label htmlFor="password">Password</label>
+                                        </div>
+                                    </div>
+                                    <div className="col-12">
+                                        <button type="submit" className="btn btn-primary w-100">
+                                            Register
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="col-md-6">
-                                <div className="form-floating">
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="lastName"
-                                        name="lastName"
-                                        placeholder="Last Name"
-                                        value={formData.lastName}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                    <label htmlFor="lastName">Last Name</label>
-                                </div>
-                            </div>
-                            <div className="col-12">
-                                <div className="form-floating">
-                                    <input
-                                        type="email"
-                                        className="form-control"
-                                        id="email"
-                                        name="email"
-                                        placeholder="name@example.com"
-                                        value={formData.email}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                    <label htmlFor="email">Email Address</label>
-                                </div>
-                            </div>
-                            <div className="col-12">
-                                <div className="form-floating">
-                                    <input
-                                        type="tel"
-                                        className="form-control"
-                                        id="phoneNumber"
-                                        name="phoneNumber"
-                                        placeholder="Phone Number"
-                                        pattern="[0-9]{10}"
-                                        value={formData.phoneNumber}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                    <label htmlFor="phoneNumber">Phone Number</label>
-                                </div>
-                            </div>
-                            <div className="col-12">
-                                <div className="form-floating">
-                                    <textarea
-                                        className="form-control"
-                                        id="homeAddress"
-                                        name="homeAddress"
-                                        placeholder="Address"
-                                        value={formData.homeAddress}
-                                        onChange={handleChange}
-                                        style={{ height: '100px' }}
-                                        required
-                                    />
-                                    <label htmlFor="homeAddress">Home Address</label>
-                                </div>
-                            </div>
-                            <div className="col-12">
-                                <div className="form-floating">
-                                    <select
-                                        className="form-select"
-                                        id="role"
-                                        name="role"
-                                        value={formData.role}
-                                        onChange={handleChange}
-                                        required
-                                    >
-                                        <option value="">Select Role</option>
-                                        <option value="customer">Customer</option>
-                                        <option value="businessman">Businessman</option>
-                                    </select>
-                                    <label htmlFor="role">Role</label>
-                                </div>
-                            </div>
-                            <div className="col-12">
-                                <div className="form-floating">
-                                    <input
-                                        type="password"
-                                        className="form-control"
-                                        id="password"
-                                        name="password"
-                                        placeholder="Password"
-                                        value={formData.password}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                    <label htmlFor="password">Password</label>
-                                </div>
-                            </div>
-                            <div className="col-12">
-                                <button type="submit" className="btn btn-primary w-100">
-                                    Register
-                                </button>
-                            </div>
+                            </form>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 }

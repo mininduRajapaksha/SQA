@@ -40,7 +40,7 @@ export default function Header({ isLoggedIn, currentUser }) {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
       <div className="container">
-        <Link className="navbar-brand" to="/">Business Platform</Link>
+        <Link className="navbar-brand" to="/">SQA Shopping</Link>
         
         <button 
           className="navbar-toggler" 
@@ -79,9 +79,12 @@ export default function Header({ isLoggedIn, currentUser }) {
                     </span>
                   )}
                 </Link>
-                <span className="text-light me-3">
-                  Welcome, {getUserName() || 'User'}
-                </span>
+                <Link to="/profile" className="text-light text-decoration-none me-3">
+                  <span className="d-flex align-items-center">
+                    <i className="bi bi-person-circle me-2"></i>
+                    {currentUser?.name || currentUser?.email?.split('@')[0] || 'User'}
+                  </span>
+                </Link>
                 <button 
                   className="btn btn-outline-light"
                   onClick={handleLogout}

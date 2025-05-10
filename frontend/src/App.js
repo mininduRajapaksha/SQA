@@ -11,6 +11,7 @@ import UpdateItem from './components/UpdateItem';
 import CustomerItemDetails from './components/CustomerItemDetails';
 import ProtectedRoute from './components/ProtectedRoute';
 import Cart from './components/Cart';
+import Profile from './components/Profile';
 
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
           <Route path="/business-dashboard" element={<BusinessDashboard />} />    
           <Route path="/item/edit/:id" element={<UpdateItem />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/profile" element={<Profile/>}/>
 
           <Route path="/item/:id" element={
     <ProtectedRoute>

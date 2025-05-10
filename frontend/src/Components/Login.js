@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import AuthHeader from './AuthHeader';
 
 export default function Login() {
     const [credentials, setCredentials] = useState({
@@ -42,57 +43,66 @@ export default function Login() {
     };
 
     return (
-        <div className="container mt-5">
-            {alert.show && (
-                <div className={`alert alert-${alert.type} alert-dismissible fade show`} role="alert">
-                    {alert.message}
-                    <button 
-                        type="button" 
-                        className="btn-close" 
-                        onClick={() => setAlert({ ...alert, show: false })}
-                        aria-label="Close">
-                    </button>
-                </div>
-            )}
-            
-            <div className="row justify-content-center">
-                <div className="col-md-6">
-                    <div className="card shadow-sm">
-                        <div className="card-body">
-                            <h3 className="card-title text-center mb-4">Login</h3>
-                            <form onSubmit={handleSubmit}>
-                                <div className="mb-3">
-                                    <label htmlFor="email" className="form-label">Email address</label>
-                                    <input
-                                        type="email"
-                                        className="form-control"
-                                        id="email"
-                                        name="email"
-                                        value={credentials.email}
-                                        onChange={handleChange}
-                                        required
-                                    />
+        <>
+            <AuthHeader />
+            <div className="container mt-5">
+                {alert.show && (
+                    <div className={`alert alert-${alert.type} alert-dismissible fade show`} role="alert">
+                        {alert.message}
+                        <button 
+                            type="button" 
+                            className="btn-close" 
+                            onClick={() => setAlert({ ...alert, show: false })}
+                            aria-label="Close">
+                        </button>
+                    </div>
+                )}
+                
+                <div className="row justify-content-center">
+                    <div className="col-md-6">
+                        <div className="card shadow-sm">
+                            <div className="card-body">
+                                <h3 className="card-title text-center mb-4">Login</h3>
+                                <form onSubmit={handleSubmit}>
+                                    <div className="mb-3">
+                                        <label htmlFor="email" className="form-label">Email address</label>
+                                        <input
+                                            type="email"
+                                            className="form-control"
+                                            id="email"
+                                            name="email"
+                                            value={credentials.email}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="mb-3">
+                                        <label htmlFor="password" className="form-label">Password</label>
+                                        <input
+                                            type="password"
+                                            className="form-control"
+                                            id="password"
+                                            name="password"
+                                            value={credentials.password}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                    </div>
+                                    <button type="submit" className="btn btn-primary w-100 mb-3">
+                                        Login
+                                    </button>
+                                </form>
+                                <div className="text-center">
+                                    <p className="mb-0">Don't have an account?</p>
+                                    <Link to="/adduser" className="btn btn-link">
+                                        Create Account
+                                    </Link>
                                 </div>
-                                <div className="mb-3">
-                                    <label htmlFor="password" className="form-label">Password</label>
-                                    <input
-                                        type="password"
-                                        className="form-control"
-                                        id="password"
-                                        name="password"
-                                        value={credentials.password}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                </div>
-                                <button type="submit" className="btn btn-primary w-100">
-                                    Login
-                                </button>
-                            </form>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 }

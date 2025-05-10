@@ -37,23 +37,62 @@ router.route("/").get((req, res) => {
     .catch(err => res.status(400).json('Error: ' + err));
 }); 
 
-//update user
-router.route("/update/:id").put((req, res) => {
-  user.findById(req.params.id)
-    .then(user => {
-      user.firstName = req.body.firstName;
-      user.lastName = req.body.lastName;
-      user.email = req.body.email;
-      user.homeAddress = req.body.homeAddress;
-      user.phoneNumber = req.body.phoneNumber;
-      user.role = req.body.role;
-      user.password = req.body.password;
+// //update user
+// router.route("/update/:id").put((req, res) => {
+//   user.findById(req.params.id)
+//     .then(user => {
+//       user.firstName = req.body.firstName;
+//       user.lastName = req.body.lastName;
+//       user.email = req.body.email;
+//       user.homeAddress = req.body.homeAddress;
+//       user.phoneNumber = req.body.phoneNumber;
+//       user.role = req.body.role;
+//       user.password = req.body.password;
 
-      user.save()
-        .then(() => res.json('User updated!'))
-        .catch(err => res.status(400).json('Error: ' + err));
-    })
-    .catch(err => res.status(400).json('Error: ' + err));
+//       user.save()
+//         .then(() => res.json('User updated!'))
+//         .catch(err => res.status(400).json('Error: ' + err));
+//     })
+//     .catch(err => res.status(400).json('Error: ' + err));
+// });
+
+// Update the user route to handle optional password updates
+router.route("/update/:id").put(async (req, res) => {
+  try {
+    const foundUser = await user.findById(req.params.id);
+    
+    if (!foundUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update basic fields
+    foundUser.firstName = req.body.firstName || foundUser.firstName;
+    foundUser.lastName = req.body.lastName || foundUser.lastName;
+    foundUser.email = req.body.email || foundUser.email;
+    foundUser.homeAddress = req.body.homeAddress || foundUser.homeAddress;
+    foundUser.phoneNumber = req.body.phoneNumber || foundUser.phoneNumber;
+    
+    // Only update password if provided
+    if (req.body.password) {
+      // In production, hash the password here
+      foundUser.password = req.body.password;
+    }
+
+    // Save the updated user
+    const updatedUser = await foundUser.save();
+    
+    // Remove password from response
+    const userResponse = updatedUser.toObject();
+    delete userResponse.password;
+
+    res.json(userResponse);
+  } catch (error) {
+    console.error('Update error:', error);
+    res.status(400).json({
+      message: 'Error updating user',
+      error: error.message
+    });
+  }
 });
 
 //delete user
@@ -64,10 +103,18 @@ router.route("/delete/:id").delete((req, res) => {
 });
 
 //get user by id
-router.route("/get/:id").get((req, res) => {
-  user.findById(req.params.id)
-    .then(user => res.json(user))
-    .catch(err => res.status(400).json('Error: ' + err));
+router.get("/:id", async (req, res) => {
+  try {
+    
+    const foundUser = await user.findById(req.params.id).select('-password');
+    if (!foundUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(foundUser);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ message: error.message });
+  }
 });
 
 //get user by email
