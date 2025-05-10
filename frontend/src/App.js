@@ -12,6 +12,7 @@ import CustomerItemDetails from './components/CustomerItemDetails';
 import ProtectedRoute from './components/ProtectedRoute';
 import Cart from './components/Cart';
 import Profile from './components/Profile';
+import RatingComponent from './components/RatingComponent';
 
 
 function App() {

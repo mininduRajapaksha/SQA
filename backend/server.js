@@ -61,11 +61,13 @@ mongoose.connect(URL, {
 const userRouter = require('./routes/user');
 const itemsRouter = require('./routes/items');
 const cartRouter = require('./routes/cart');
+const ratingsRouter = require('./routes/rating');
 
 app.use("/user", userRouter)
 app.use("/items", itemsRouter)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/cart', cartRouter);
+app.use('/ratings', ratingsRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

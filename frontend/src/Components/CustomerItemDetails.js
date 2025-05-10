@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Header from './Header';
+import RatingComponent from './RatingComponent';
 
 export default function CustomerItemDetails() {
   const { id } = useParams();
@@ -12,6 +13,7 @@ export default function CustomerItemDetails() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [overallRating, setOverallRating] = useState({ average: 0, count: 0 });
 
   useEffect(() => {
     const userJson = localStorage.getItem('user');
@@ -90,6 +92,10 @@ export default function CustomerItemDetails() {
     }
   };
 
+  const handleRatingUpdate = (ratingData) => {
+    setOverallRating(ratingData);
+  };
+
   if (isLoading) {
     return <div className="text-center mt-5">Loading...</div>;
   }
@@ -111,71 +117,107 @@ export default function CustomerItemDetails() {
         )}
 
         {item && (
-          <div className="row">
-            <div className="col-md-6">
-              <img 
-                src={item.imageUrl} 
-                alt={item.name}
-                className="img-fluid rounded"
-                style={{ maxHeight: '400px', width: '100%', objectFit: 'cover' }}
-                onError={(e) => {
-                  e.target.src = 'https://via.placeholder.com/400x400?text=No+Image';
-                }}
-              />
-            </div>
-            <div className="col-md-6">
-              <h2>{item.name}</h2>
-              <p className="text-muted">{item.description}</p>
-              <h4 className="mb-3">Rs. {item.price}</h4>
-              <p>Category: {item.category}</p>
-              <p>Stock Available: {item.stockQuantity}</p>
-              
-              <div className="mb-3">
-                <label htmlFor="quantity" className="form-label">Quantity:</label>
-                <div className="input-group" style={{ maxWidth: '200px' }}>
+          <>
+            <div className="row">
+              <div className="col-md-6">
+                <img 
+                  src={item.imageUrl} 
+                  alt={item.name}
+                  className="img-fluid rounded"
+                  style={{ maxHeight: '400px', width: '100%', objectFit: 'cover' }}
+                  onError={(e) => {
+                    e.target.src = 'https://via.placeholder.com/400x400?text=No+Image';
+                  }}
+                />
+              </div>
+              <div className="col-md-6">
+                <h2>{item.name}</h2>
+                
+
+
+                <p className="text-muted">{item.description}</p>
+                <h4 className="mb-3">Rs. {item.price}</h4>
+                <p>Category: {item.category}</p>
+                <p>Stock Available: {item.stockQuantity}</p>
+
+                                {/* Add overall rating display */}
+                <div className="mb-3">
+                  <div className="d-flex align-items-center gap-2">
+                    <div className="h4 mb-0">{overallRating.average}</div>
+                    <div>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <i
+                          key={star}
+                          className={`bi bi-star${
+                            star <= Math.round(overallRating.average) ? '-fill' : ''
+                          } text-warning`}
+                        />
+                      ))}
+                    </div>
+                    <div className="text-muted">
+                      ({overallRating.count} {overallRating.count === 1 ? 'review' : 'reviews'})
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mb-3">
+                  {/* <label htmlFor="quantity" className="form-label">Quantity:</label> */}
+                  <div className="input-group" style={{ maxWidth: '200px' }}>
+                    <button 
+                      className="btn btn-outline-secondary" 
+                      type="button"
+                      onClick={() => quantity > 1 && setQuantity(q => q - 1)}
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      className="form-control text-center"
+                      id="quantity"
+                      value={quantity}
+                      onChange={handleQuantityChange}
+                      min="1"
+                      max={item.stockQuantity}
+                    />
+                    <button 
+                      className="btn btn-outline-secondary" 
+                      type="button"
+                      onClick={() => quantity < item.stockQuantity && setQuantity(q => q + 1)}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                <div className="d-flex gap-2 mt-4">
                   <button 
-                    className="btn btn-outline-secondary" 
-                    type="button"
-                    onClick={() => quantity > 1 && setQuantity(q => q - 1)}
+                    className="btn btn-primary"
+                    onClick={handleAddToCart}
+                    disabled={item.stockQuantity === 0}
                   >
-                    -
+                    {item.stockQuantity === 0 ? 'Out of Stock' : 'Add to Cart'}
                   </button>
-                  <input
-                    type="number"
-                    className="form-control text-center"
-                    id="quantity"
-                    value={quantity}
-                    onChange={handleQuantityChange}
-                    min="1"
-                    max={item.stockQuantity}
-                  />
                   <button 
-                    className="btn btn-outline-secondary" 
-                    type="button"
-                    onClick={() => quantity < item.stockQuantity && setQuantity(q => q + 1)}
+                    className="btn btn-secondary"
+                    onClick={() => navigate('/customer-dashboard')}
                   >
-                    +
+                    Back to Shopping
                   </button>
                 </div>
               </div>
-
-              <div className="d-flex gap-2 mt-4">
-                <button 
-                  className="btn btn-primary"
-                  onClick={handleAddToCart}
-                  disabled={item.stockQuantity === 0}
-                >
-                  {item.stockQuantity === 0 ? 'Out of Stock' : 'Add to Cart'}
-                </button>
-                <button 
-                  className="btn btn-secondary"
-                  onClick={() => navigate('/customer-dashboard')}
-                >
-                  Back to Shopping
-                </button>
+            </div>
+            
+            {/* Add Rating Component */}
+            <div className="row mt-4">
+              <div className="col-12">
+                <RatingComponent 
+                  itemId={id} 
+                  currentUser={currentUser}
+                  onRatingUpdate={handleRatingUpdate}
+                />
               </div>
             </div>
-          </div>
+          </>
         )}
       </div>
     </>

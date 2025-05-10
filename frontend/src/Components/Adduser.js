@@ -4,6 +4,7 @@ import axios from 'axios';
 import AuthHeader from './AuthHeader';
 
 export default function Adduser() {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',

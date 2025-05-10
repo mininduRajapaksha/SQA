@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Header from './Header';
+import RatingComponent from './RatingComponent';
 
 export default function ItemDetails() {
   const { id } = useParams();
@@ -11,6 +12,7 @@ export default function ItemDetails() {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [overallRating, setOverallRating] = useState({ average: 0, count: 0 });
 
   useEffect(() => {
     // Check authentication status
@@ -20,14 +22,11 @@ export default function ItemDetails() {
       setCurrentUser(user);
       setIsLoggedIn(true);
     } else {
-      navigate('/login');
+      navigate('/');
     }
     
     fetchItemDetails();
   }, [id, navigate]);
-//   useEffect(() => {
-//     fetchItemDetails();
-//   }, [id]);
 
   const fetchItemDetails = async () => {
     try {
@@ -81,6 +80,10 @@ export default function ItemDetails() {
     }
 };
 
+  const handleRatingUpdate = (ratingData) => {
+    setOverallRating(ratingData);
+  };
+
   if (isLoading) {
     return <div className="text-center mt-5">Loading...</div>;
   }
@@ -115,6 +118,26 @@ export default function ItemDetails() {
             </div>
             <div className="col-md-6">
               <h2>{item.name}</h2>
+              
+              <div className="mb-3">
+                <div className="d-flex align-items-center gap-2">
+                  <div className="h4 mb-0">{overallRating.average}</div>
+                  <div>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <i
+                        key={star}
+                        className={`bi bi-star${
+                          star <= Math.round(overallRating.average) ? '-fill' : ''
+                        } text-warning`}
+                      />
+                    ))}
+                  </div>
+                  <div className="text-muted">
+                    ({overallRating.count} {overallRating.count === 1 ? 'review' : 'reviews'})
+                  </div>
+                </div>
+              </div>
+
               <p className="text-muted">{item.description}</p>
               <h4 className="mb-3">Rs. {item.price}</h4>
               <p>Category: {item.category}</p>
@@ -137,6 +160,12 @@ export default function ItemDetails() {
             </div>
           </div>
         )}
+        
+        <RatingComponent 
+          itemId={id} 
+          currentUser={currentUser}
+          onRatingUpdate={handleRatingUpdate}
+        />
       </div>
     </>
   );

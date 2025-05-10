@@ -30,17 +30,43 @@ export default function Header({ isLoggedIn, currentUser }) {
 
   const getUserName = () => {
     if (!currentUser) return 'User';
-    // Check for name in different possible properties
-    return currentUser.name || 
-           currentUser.username || 
-           currentUser.email?.split('@')[0] || 
-           'User';
+    
+    // Check for firstName + lastName first
+    if (currentUser.firstName && currentUser.lastName) {
+      return `${currentUser.firstName} ${currentUser.lastName}`;
+    }
+    
+    // Then check for name
+    if (currentUser.name) {
+      return currentUser.name;
+    }
+    
+    // Finally fall back to email or username
+    return currentUser.email?.split('@')[0] || 'User';
+  };
+
+  const handleHomeClick = () => {
+    if (!isLoggedIn || !currentUser) {
+      navigate('/');
+      return;
+    }
+
+    if (currentUser.role === 'customer') {
+      navigate('/customer-dashboard');
+    } else if (currentUser.role === 'businessman') {
+      navigate('/business-dashboard');
+    }
   };
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
       <div className="container">
-        <Link className="navbar-brand" to="/">SQA Shopping</Link>
+        <button 
+          className="navbar-brand btn btn-link text-light text-decoration-none" 
+          onClick={handleHomeClick}
+        >
+          SQA Shopping
+        </button>
         
         <button 
           className="navbar-toggler" 
@@ -54,15 +80,15 @@ export default function Header({ isLoggedIn, currentUser }) {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav me-auto">
             <li className="nav-item">
-              <Link className="nav-link" to="/">Home</Link>
+              <Link className="nav-link disabled" >Home</Link>
             </li>
             {isLoggedIn && (
               <>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/dashboard">Dashboard</Link>
+                  <Link className="nav-link disabled" to="/dashboard" aria-disabled="true">Dashboard</Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/items">My Items</Link>
+                  <Link className="nav-link disabled" to="/items">My Items</Link>
                 </li>
               </>
             )}
@@ -82,7 +108,7 @@ export default function Header({ isLoggedIn, currentUser }) {
                 <Link to="/profile" className="text-light text-decoration-none me-3">
                   <span className="d-flex align-items-center">
                     <i className="bi bi-person-circle me-2"></i>
-                    {currentUser?.name || currentUser?.email?.split('@')[0] || 'User'}
+                    {getUserName()} {/* Use the getUserName function here */}
                   </span>
                 </Link>
                 <button 
